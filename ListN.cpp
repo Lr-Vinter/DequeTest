@@ -21,27 +21,33 @@ using namespace std;
 //----------------------------------------------------------
 
 template <class DataType>
+class List;
+
+template <class DataType>
 class Element
 {   
     private:
-
-    public:
 
         DataType info;
         Element* left_pointer;
         Element* right_pointer;
 
+    public:
+
         void Set_left_pointer (Element* _left_pointer);
         void Set_right_pointer(Element* _right_pointer);
 
-
         Element(DataType input_info, Element* _left_pointer, Element* _right_pointer);
+        ~Element();
+
         void Current_Element_print();
 
         // just for debug
         DataType Get_info(); 
         Element* Get_left_pointer();
         Element* Get_right_pointer();
+
+    friend List<DataType>;
 
 };
 
@@ -55,16 +61,21 @@ Element<DataType>::Element(DataType input_info, Element* _left_pointer, Element*
 }
 
 template <class DataType>
+Element<DataType>::~Element() { }
+
+template <class DataType>
 void Element<DataType>::Set_left_pointer(Element* _left_pointer)
 {
     left_pointer = _left_pointer;
 }
+
 
 template <class DataType>
 void Element<DataType>::Set_right_pointer(Element* _right_pointer)
 {
     right_pointer = _right_pointer;
 }
+
 
 template <class DataType>
 void Element<DataType>::Current_Element_print()
@@ -92,8 +103,8 @@ Element<DataType>* Element<DataType>::Get_right_pointer()
 {
     return right_pointer;
 }
+
 //----------------------------------------------------------
-// 1981 - пароль от телефона тт.
 
 template <class DataType>
 class List 
@@ -105,15 +116,20 @@ class List
 
     public:
 
-        int Element_delete (int position);
-
         void Push_back(DataType data);
         void Push_front(DataType data);
         void Element_add(int key, DataType data, bool side);
 
+        void Delete_first();
+        void Delete_last();
+        void Delete_by_key(int key);
+
         List();
+        ~List();
+
         void Print_list();
 };
+
 
 template <class DataType>
 List<DataType>::List ()
@@ -121,6 +137,8 @@ List<DataType>::List ()
     Header = nullptr;
     cout << "Constructor for List finish" << endl;
 }
+
+template <class DataType> List<DataType>::~List () { }
 
 // Добавление в начало
 
@@ -238,16 +256,60 @@ void List<DataType>::Print_list() // работает только если ли
     }
 }
 
+// удаление первого элемента
+
+template <class DataType>
+void List<DataType>::Delete_first()
+{
+    Header = Header->right_pointer;
+    delete Header->left_pointer;
+    Header->Set_left_pointer(nullptr);
+    Size--;
+}
+
 // удаление последнего элемента
 
-// удаление первого элемента    
+template <class DataType>
+void List<DataType>::Delete_last()
+{
+    Element<DataType>* TempElement = Header;
+    while(1)
+    {
+        if(TempElement->right_pointer == nullptr)
+            break;
+        TempElement = TempElement->right_pointer;
+    }
+    TempElement->left_pointer->Set_right_pointer(nullptr);
+    delete TempElement;
+    Size--;
+}
 
-// удаление элемента по ключу
+// удаление по ключу
+
+template <class DataType>
+void List<DataType>::Delete_by_key(int key)
+{
+    Element<DataType>* TempElement = Header;
+    for(int i = 0; i < key - 1; i++)
+    {
+        assert(TempElement->Get_right_pointer() != nullptr);
+        TempElement = TempElement->right_pointer;
+    }
+    
+    if(TempElement->left_pointer == nullptr)
+        Delete_first();
+    if(TempElement->right_pointer == nullptr)
+        Delete_last();
+
+    TempElement->left_pointer->Set_right_pointer(TempElement->right_pointer);
+    TempElement->right_pointer->Set_left_pointer(TempElement->left_pointer);
+
+    delete TempElement;
+    Size--;
+}
 
 int main ()
 {
-    printf("test");
-    
     List <int> mylist;
 
     mylist.Push_back(3);
@@ -259,22 +321,22 @@ int main ()
     mylist.Element_add(2, 888, 0);
     mylist.Element_add(1, 555, 0);
     mylist.Element_add(8, 666, 1);
-
+    
+    mylist.Delete_by_key(1);
     mylist.Print_list();
     
     cout << "end==============================";
 
+    /*
     List <string> CharList;
 
     CharList.Push_back("c");
     CharList.Push_back("mudak");
 
     CharList.Print_list();
+    */
 
-    return 0;       
+    return 0;      
 }
 
 //-----------------------------------
-
-
-
