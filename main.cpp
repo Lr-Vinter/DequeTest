@@ -1,4 +1,6 @@
 #include "Element.cpp" // Вот, это, конечно, ПИЗДЕЦ, понимание того, как работает компоновщик...
+// g++ -std=c++11 Element.cpp List.cpp main.cpp -o deq.out
+
 #include "List.cpp"
 
 int main ()
