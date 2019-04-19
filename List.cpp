@@ -1,129 +1,5 @@
-#include <iostream>
-#include "stdlib.h"
-#include "stdio.h"
-#include <string>
-#include "assert.h"
-
-using namespace std;
-
-// добавление в конец списка
-// добавление в начало списка
-// добавление в список по указанному индексу
-// удаление последнего элемента
-// удаление первого элемента
-// удаление элемента по указанному индексу 
-//----------------------------------------------------------
-
-template <class DataType>
-class List;
-
-template <class DataType>
-class Element
-{   
-    private:
-
-        DataType info;
-        Element* left_pointer;
-        Element* right_pointer;
-
-    public:
-
-        void Set_left_pointer (Element* _left_pointer);
-        void Set_right_pointer(Element* _right_pointer);
-
-        Element(DataType input_info, Element* _left_pointer, Element* _right_pointer);
-        ~Element();
-
-        void Current_Element_print();
-
-        // just for debug
-        DataType Get_info(); 
-        Element* Get_left_pointer();
-        Element* Get_right_pointer();
-
-    friend List<DataType>;
-
-};
-
-template <class DataType>
-Element<DataType>::Element(DataType input_info, Element* _left_pointer, Element* _right_pointer)
-{
-    info = input_info;
-    Set_left_pointer (_left_pointer);
-    Set_right_pointer(_right_pointer);
-    cout << "Constructor for Element finish" << endl;
-}
-
-template <class DataType>
-Element<DataType>::~Element() { }
-
-template <class DataType>
-void Element<DataType>::Set_left_pointer(Element* _left_pointer)
-{
-    left_pointer = _left_pointer;
-}
-
-
-template <class DataType>
-void Element<DataType>::Set_right_pointer(Element* _right_pointer)
-{
-    right_pointer = _right_pointer;
-}
-
-
-template <class DataType>
-void Element<DataType>::Current_Element_print()
-{
-    cout << "This is info :" << info << endl;
-    cout << "This is right ptr" << right_pointer << endl;
-    cout << "This is left  ptr" <<  left_pointer << endl;
-    cout << "-----------------" << endl;
-}
-
-template <class DataType> 
-DataType Element<DataType>::Get_info()
-{
-    return info;
-}
-
-template <class DataType>
-Element<DataType>* Element<DataType>::Get_left_pointer()
-{
-    return left_pointer;
-}
-
-template <class DataType>
-Element<DataType>* Element<DataType>::Get_right_pointer()
-{
-    return right_pointer;
-}
-
-//----------------------------------------------------------
-
-template <class DataType>
-class List 
-{    
-    private:
-
-        Element<DataType>* Header;
-        int Size;
-
-    public:
-
-        void Push_back(DataType data);
-        void Push_front(DataType data);
-        void Element_add(int key, DataType data, bool side);
-
-        void Delete_first();
-        void Delete_last();
-        void Delete_by_key(int key);
-
-        List();
-        ~List();
-
-        void Print_list();
-};
-
+#include "Element.h"
+#include "List.h"
 
 template <class DataType>
 List<DataType>::List ()
@@ -134,7 +10,7 @@ List<DataType>::List ()
 
 template <class DataType> List<DataType>::~List () { }
 
-// Добавление в начало
+// Adding element in the beginning
 
 template <class DataType>
 void List<DataType>::Push_back(DataType data)
@@ -152,7 +28,8 @@ void List<DataType>::Push_back(DataType data)
     Size++;
 }
 
-// Добавление в конец
+// Adding element in the end 
+
 template <class DataType>
 void List<DataType>::Push_front(DataType data)
 {
@@ -175,7 +52,7 @@ void List<DataType>::Push_front(DataType data)
     Size++;
 }
 
-// Добавление в проивзольное место
+// Adding element by key 
 
 enum { LEFT, RIGHT };
 
@@ -224,7 +101,8 @@ void List<DataType>::Element_add(int key, DataType data, bool side)
     }
 }
 
-// Печать списка
+// Printing list + reverse printing for assertion, that left pointers are OK 
+
 template <class DataType>
 void List<DataType>::Print_list() // работает только если лист не пустой (очевидно)
 {
@@ -250,7 +128,7 @@ void List<DataType>::Print_list() // работает только если ли
     }
 }
 
-// удаление первого элемента
+// Deleting first element 
 
 template <class DataType>
 void List<DataType>::Delete_first()
@@ -261,7 +139,7 @@ void List<DataType>::Delete_first()
     Size--;
 }
 
-// удаление последнего элемента
+// Deleting last element 
 
 template <class DataType>
 void List<DataType>::Delete_last()
@@ -278,7 +156,7 @@ void List<DataType>::Delete_last()
     Size--;
 }
 
-// удаление по ключу
+// Deleting element by key 
 
 template <class DataType>
 void List<DataType>::Delete_by_key(int key)
@@ -292,45 +170,14 @@ void List<DataType>::Delete_by_key(int key)
     
     if(TempElement->left_pointer == nullptr)
         Delete_first();
-    if(TempElement->right_pointer == nullptr)
+    else if(TempElement->right_pointer == nullptr)
         Delete_last();
+    else 
+    {
+        TempElement->left_pointer->Set_right_pointer(TempElement->right_pointer);
+        TempElement->right_pointer->Set_left_pointer(TempElement->left_pointer);
 
-    TempElement->left_pointer->Set_right_pointer(TempElement->right_pointer);
-    TempElement->right_pointer->Set_left_pointer(TempElement->left_pointer);
-
-    delete TempElement;
+        delete TempElement;
+    }
     Size--;
 }
-
-int main ()
-{
-    List <int> mylist;
-
-    mylist.Push_back(3);
-    mylist.Push_back(5);
-    mylist.Push_back(11);
-    mylist.Push_front(9);
-    mylist.Push_back(12);
-    mylist.Element_add(2, 999, 1);
-    mylist.Element_add(2, 888, 0);
-    mylist.Element_add(1, 555, 0);
-    mylist.Element_add(8, 666, 1);
-    
-    mylist.Delete_by_key(1);
-    mylist.Print_list();
-    
-    cout << "end==============================";
-
-    /*
-    List <string> CharList;
-
-    CharList.Push_back("c");
-    CharList.Push_back("mudak");
-
-    CharList.Print_list();
-    */
-
-    return 0;      
-}
-
-//-----------------------------------
